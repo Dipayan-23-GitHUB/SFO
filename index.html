@@ -1,0 +1,795 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Meridian Variance Desk</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,600;1,400;1,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --paper: #f2f4f3;
+    --paper-raised: #ffffff;
+    --ink: #171b20;
+    --ink-soft: #4b535c;
+    --ink-faint: #7c848c;
+    --rule: #d7dbdd;
+    --rule-strong: #b9c0c4;
+    --accent: #2e4c74;
+    --accent-soft: #e3e9f1;
+    --go: #3f6b45;
+    --go-soft: #e3ece2;
+    --caution: #96692a;
+    --caution-soft: #f2e8d8;
+    --mono-tint: #e9ebea;
+    --student-bubble: #e3e9f1;
+    --colleague-bubble: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14171b; --paper-raised: #1b1f24; --ink: #ecedf0; --ink-soft: #aab1b8; --ink-faint: #7c848c;
+      --rule: #333a41; --rule-strong: #454e56; --accent: #8fadda; --accent-soft: #223349;
+      --go: #86bd8b; --go-soft: #21301f; --caution: #d6a962; --caution-soft: #392c18;
+      --mono-tint: #1e2227; --student-bubble: #223349; --colleague-bubble: #1b1f24;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14171b; --paper-raised: #1b1f24; --ink: #ecedf0; --ink-soft: #aab1b8; --ink-faint: #7c848c;
+    --rule: #333a41; --rule-strong: #454e56; --accent: #8fadda; --accent-soft: #223349;
+    --go: #86bd8b; --go-soft: #21301f; --caution: #d6a962; --caution-soft: #392c18;
+    --mono-tint: #1e2227; --student-bubble: #223349; --colleague-bubble: #1b1f24;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink); font-family: "Public Sans", -apple-system, "Segoe UI", sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: "Newsreader", Georgia, serif; text-wrap: balance; color: var(--ink); font-weight: 600; margin: 0; }
+  .mono { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+  button { font-family: inherit; cursor: pointer; }
+  a { color: var(--accent); }
+  [hidden] { display: none !important; }
+
+  .app { max-width: 940px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    border-bottom: 1px solid var(--rule-strong); padding-bottom: 0.9rem; margin-bottom: 1.2rem;
+  }
+  .topbar .brand { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent); }
+  .topbar .role { font-size: 0.85rem; color: var(--ink-soft); }
+  .topbar .role strong { color: var(--ink); }
+  .topbar-actions { display: flex; gap: 0.5rem; }
+
+  .btn {
+    font-size: 0.88rem; font-weight: 600; padding: 0.62rem 1.1rem; border-radius: 3px;
+    border: 1px solid var(--rule-strong); background: var(--paper-raised); color: var(--ink);
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-ghost { border-color: transparent; background: transparent; color: var(--ink-soft); }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--rule-strong); }
+
+  /* Under-the-hood panel */
+  .underhood-panel { background: var(--mono-tint); border: 1px solid var(--rule-strong); padding: 1.2rem 1.4rem; margin-bottom: 1.8rem; }
+  .underhood-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.7rem; gap: 1rem; }
+  .underhood-panel .kicker { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+  .underhood-panel p { font-size: 0.88rem; color: var(--ink); margin: 0 0 0.7rem; max-width: 70ch; }
+  .underhood-panel p:last-child { margin-bottom: 0; }
+  .underhood-panel p strong { color: var(--ink); }
+
+  /* Case picker */
+  .picker-intro { margin-bottom: 1.6rem; }
+  .picker-intro .kicker { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+  .picker-intro h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); margin-bottom: 0.7rem; }
+  .picker-intro p { max-width: 62ch; color: var(--ink-soft); margin: 0; }
+  .case-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+  @media (min-width: 780px) { .case-grid { grid-template-columns: repeat(3, 1fr); } }
+  .case-card { background: var(--paper-raised); border: 1px solid var(--rule-strong); border-left: 3px solid var(--rule-strong); padding: 1.5rem 1.4rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .case-card.accent { border-left-color: var(--accent); }
+  .case-card.caution { border-left-color: var(--caution); }
+  .case-card.go { border-left-color: var(--go); }
+  .case-card .tag { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+  .case-card h3 { font-size: 1.12rem; line-height: 1.35; }
+  .case-card .teaser { font-size: 0.87rem; color: var(--ink-soft); margin: 0; flex: 1; }
+  .case-card .meta { font-size: 0.74rem; color: var(--ink-faint); }
+  .case-card button { align-self: flex-start; margin-top: 0.2rem; }
+
+  /* Briefing screen */
+  .briefing { background: var(--paper-raised); border: 1px solid var(--rule-strong); border-left: 3px solid var(--accent); padding: 2rem 2.1rem; }
+  .briefing .kicker { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; }
+  .briefing h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); margin-bottom: 0.9rem; }
+  .briefing p { max-width: 60ch; color: var(--ink); margin: 0 0 0.9rem; }
+  .briefing .flag { display: inline-block; background: var(--caution-soft); color: var(--caution); font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; padding: 0.3rem 0.6rem; border-radius: 3px; margin-bottom: 1.2rem; }
+  .briefing ol { margin: 0 0 1.6rem; padding-left: 1.2rem; color: var(--ink-soft); font-size: 0.92rem; }
+  .briefing li { margin-bottom: 0.3rem; }
+
+  /* Workspace */
+  .workspace-grid { display: grid; grid-template-columns: 1fr; gap: 1.1rem; }
+  @media (min-width: 780px) { .workspace-grid { grid-template-columns: 1.05fr 1fr; align-items: start; } }
+
+  .panel { background: var(--paper-raised); border: 1px solid var(--rule-strong); }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--rule); }
+  .panel-head h2 { font-size: 1rem; font-family: "Public Sans", sans-serif; font-weight: 700; }
+  .panel-head .hint { font-size: 0.76rem; color: var(--ink-faint); font-family: "IBM Plex Mono", monospace; }
+
+  .tool-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.9rem 1.1rem 0; }
+  .tool-tab { font-size: 0.82rem; padding: 0.45rem 0.75rem; border-radius: 3px; border: 1px solid var(--rule-strong); background: var(--paper); color: var(--ink-soft); display: flex; align-items: center; gap: 0.4rem; }
+  .tool-tab:hover { color: var(--ink); }
+  .tool-tab.active { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+  .tool-tab .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--rule-strong); flex: none; }
+  .tool-tab.seen .dot { background: var(--go); }
+
+  .tool-viewer { padding: 1rem 1.1rem 1.2rem; min-height: 210px; }
+  .tool-viewer .placeholder { color: var(--ink-faint); font-size: 0.88rem; padding: 1.5rem 0; text-align: center; }
+  .tool-viewer dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.4rem 1rem; margin: 0 0 0.8rem; }
+  .tool-viewer dt { font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; color: var(--ink-faint); white-space: nowrap; }
+  .tool-viewer dd { margin: 0; font-size: 0.9rem; color: var(--ink); }
+  .tool-viewer table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+  .tool-viewer th { text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint); padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--rule-strong); }
+  .tool-viewer td { padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--rule); color: var(--ink); }
+  .tool-viewer tr.flagged td { background: var(--caution-soft); }
+  .tool-viewer .note { font-size: 0.8rem; color: var(--ink-faint); margin-top: 0.6rem; }
+
+  /* Chat */
+  .chat-log { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.7rem; max-height: 360px; overflow-y: auto; }
+  .bubble-row { display: flex; flex-direction: column; max-width: 86%; }
+  .bubble-row.student { align-self: flex-end; align-items: flex-end; }
+  .bubble-row.colleague { align-self: flex-start; align-items: flex-start; }
+  .bubble-sender { font-size: 0.72rem; color: var(--ink-faint); margin-bottom: 0.2rem; font-family: "IBM Plex Mono", monospace; }
+  .bubble { padding: 0.6rem 0.85rem; border-radius: 4px; font-size: 0.9rem; line-height: 1.5; border: 1px solid var(--rule); }
+  .bubble-row.student .bubble { background: var(--student-bubble); border-color: var(--accent-soft); }
+  .bubble-row.colleague .bubble { background: var(--colleague-bubble); }
+
+  .suggested-row { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1.1rem 0.9rem; }
+  .suggested-row button { font-size: 0.78rem; padding: 0.4rem 0.65rem; }
+
+  .chat-input-row { display: flex; gap: 0.5rem; padding: 0.9rem 1.1rem; border-top: 1px solid var(--rule); }
+  .chat-input-row input { flex: 1; font-family: inherit; font-size: 0.9rem; padding: 0.6rem 0.75rem; border: 1px solid var(--rule-strong); border-radius: 3px; background: var(--paper); color: var(--ink); }
+  .chat-input-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* Write-up */
+  .writeup { margin-top: 1.1rem; }
+  .writeup textarea { width: 100%; min-height: 130px; font-family: inherit; font-size: 0.92rem; padding: 0.9rem 1rem; border: 1px solid var(--rule-strong); border-radius: 3px; background: var(--paper-raised); color: var(--ink); resize: vertical; }
+  .writeup textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .writeup-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 0.7rem; gap: 1rem; flex-wrap: wrap; }
+  .writeup-foot .hint { font-size: 0.8rem; color: var(--ink-faint); }
+
+  /* Debrief */
+  .debrief h1 { font-size: clamp(1.5rem, 4vw, 1.9rem); margin-bottom: 0.4rem; }
+  .debrief .sub { color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 1.6rem; }
+  .rubric-row { display: grid; grid-template-columns: 160px 1fr; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--rule); align-items: start; }
+  @media (max-width: 560px) { .rubric-row { grid-template-columns: 1fr; gap: 0.4rem; } }
+  .rubric-row:last-of-type { border-bottom: 1px solid var(--rule); }
+  .rubric-dim { font-weight: 700; font-size: 0.94rem; }
+  .chip { display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.2rem 0.5rem; border-radius: 3px; margin-top: 0.4rem; }
+  .chip.strong { background: var(--go-soft); color: var(--go); }
+  .chip.developing { background: var(--caution-soft); color: var(--caution); }
+  .rubric-feedback { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
+
+  .answer-key { background: var(--mono-tint); border: 1px solid var(--rule-strong); padding: 1.2rem 1.4rem; margin-top: 1.8rem; }
+  .answer-key .kicker { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.6rem; }
+  .answer-key p { font-size: 0.92rem; color: var(--ink); margin: 0 0 0.7rem; max-width: 66ch; }
+  .answer-key p:last-child { margin-bottom: 0; }
+
+  .debrief-actions { margin-top: 1.8rem; display: flex; gap: 0.7rem; flex-wrap: wrap; }
+
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+</style>
+
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">SFO Prototype · Meridian Bicycle Co.</div>
+    <div class="role">You are: <strong>Plant / BU Controller</strong> · Period: <strong>Aug 2026</strong></div>
+    <div class="topbar-actions" id="topbarActions" hidden>
+      <button class="btn btn-ghost" onclick="toggleUnderHood()">Under the hood</button>
+      <button class="btn btn-ghost" onclick="backToPicker()">Change case</button>
+    </div>
+  </div>
+
+  <div class="underhood-panel" id="underhoodPanel" hidden>
+    <div class="underhood-head">
+      <span class="kicker">Under the hood — this case</span>
+      <button class="btn btn-ghost" onclick="toggleUnderHood()">Close ✕</button>
+    </div>
+    <p><strong>Ledger — </strong><span id="uhLedger"></span></p>
+    <p><strong>Injected exception — </strong><span id="uhException"></span></p>
+    <p><strong>Grading — </strong><span id="uhGrading"></span></p>
+  </div>
+
+  <!-- SCREEN 0: CASE PICKER -->
+  <section id="screen-picker">
+    <div class="picker-intro">
+      <div class="kicker">Choose a case</div>
+      <h1>Three ways the same ledger can go wrong.</h1>
+      <p>Same company, same two roles, same architecture — one ledger with a different discrepancy deliberately built into each. Pick one to run.</p>
+    </div>
+    <div class="case-grid">
+      <article class="case-card accent">
+        <div class="tag">Cost variance</div>
+        <h3>An unexplained $13,400 material price variance.</h3>
+        <p class="teaser">A vendor price hike vs. a standard cost nobody revisited. The cleanest case — one clear, findable cause.</p>
+        <div class="meta mono">Plant/BU Controller · Cost Accounting Mgr</div>
+        <button class="btn btn-primary" onclick="startCase('case1')">Start this case →</button>
+      </article>
+      <article class="case-card caution">
+        <div class="tag">Inventory reconciliation</div>
+        <h3>340 units are missing from the cycle count.</h3>
+        <p class="teaser">A physical count comes up short of the book. Sam's already drafted a shrinkage write-off — is that the right call?</p>
+        <div class="meta mono">Plant/BU Controller · Cost Accounting Mgr</div>
+        <button class="btn btn-primary" onclick="startCase('case2')">Start this case →</button>
+      </article>
+      <article class="case-card go">
+        <div class="tag">Standard cost integrity</div>
+        <h3>An $8,160 favorable variance looks like good news.</h3>
+        <p class="teaser">Nobody investigates favorable variances. That instinct is usually wrong — find out why.</p>
+        <div class="meta mono">Plant/BU Controller · Cost Accounting Mgr</div>
+        <button class="btn btn-primary" onclick="startCase('case3')">Start this case →</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- SCREEN 1: BRIEFING -->
+  <section id="screen-briefing" class="briefing" hidden>
+    <div class="kicker" id="briefKicker"></div>
+    <h1 id="briefTitle"></h1>
+    <span class="flag" id="briefFlag"></span>
+    <p id="briefP1"></p>
+    <p id="briefP2"></p>
+    <ol id="briefSteps"></ol>
+    <button class="btn btn-primary" onclick="beginInvestigation()">Begin investigation</button>
+  </section>
+
+  <!-- SCREEN 2: WORKSPACE -->
+  <section id="screen-workspace" hidden>
+    <div class="workspace-grid">
+
+      <div class="panel">
+        <div class="panel-head"><h2>Data room</h2><span class="hint">4 sources</span></div>
+        <div class="tool-tabs" id="toolTabs"></div>
+        <div class="tool-viewer" id="toolViewer">
+          <div class="placeholder">Select a source above to view it.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>Ask Sam Delgado</h2><span class="hint">Cost Accounting Mgr</span></div>
+        <div class="chat-log" id="chatLog"></div>
+        <div class="suggested-row" id="suggestedRow"></div>
+        <div class="chat-input-row">
+          <input id="chatInput" type="text" placeholder="Type a question…" onkeydown="if(event.key==='Enter')sendChat()" />
+          <button class="btn" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="panel writeup">
+      <div class="panel-head"><h2>Your write-up</h2><span class="hint">cause · amount · recommendation</span></div>
+      <div style="padding:1.1rem;">
+        <textarea id="writeupText" placeholder="What actually happened, and what do you recommend?"></textarea>
+        <div class="writeup-foot">
+          <span class="hint">Sent to Mentor for the debrief — not to Sam.</span>
+          <button class="btn btn-primary" onclick="submitWriteup()">Submit to Mentor</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 3: DEBRIEF -->
+  <section id="screen-debrief" class="debrief" hidden>
+    <h1>Mentor debrief</h1>
+    <p class="sub">Graded against the ledger's actual answer — not against what Sam said.</p>
+
+    <div class="rubric-row">
+      <div class="rubric-dim">Technical accuracy<br><span class="chip" id="chip-technical"></span></div>
+      <p class="rubric-feedback" id="fb-technical"></p>
+    </div>
+    <div class="rubric-row">
+      <div class="rubric-dim">Communication<br><span class="chip" id="chip-communication"></span></div>
+      <p class="rubric-feedback" id="fb-communication"></p>
+    </div>
+    <div class="rubric-row">
+      <div class="rubric-dim">Risk management<br><span class="chip" id="chip-risk"></span></div>
+      <p class="rubric-feedback" id="fb-risk"></p>
+    </div>
+
+    <div class="answer-key">
+      <div class="kicker">Answer key</div>
+      <p id="answerKeyP1"></p>
+      <p id="answerKeyP2"></p>
+    </div>
+
+    <div class="debrief-actions">
+      <button class="btn" onclick="restart()">Run it again</button>
+      <button class="btn btn-ghost" onclick="backToPicker()">Try another case</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  var activeCase = null;
+  var seenTools = {};
+
+  var data1 = {
+    material: { id: "FRM-VX7-AL", desc: "Aluminum Frame Tube — Model VX7", plant: "MER-100", standard_price: "$18.40", valuation_date: "2026-01-04" },
+    receipt: { id: "GR-20260819-014", material: "FRM-VX7-AL", qty: "4,000", actual_unit_price: "$21.75", posting_date: "2026-08-19", vendor: "Alcan Extrusions Ltd." },
+    journal: [
+      { entry: "JE-88231-1", account: "130000 · Raw Material Inventory", debit: "$73,600", credit: "" },
+      { entry: "JE-88231-2", account: "519500 · Purchase Price Variance", debit: "$13,400", credit: "" },
+      { entry: "JE-88231-3", account: "200000 · Accounts Payable", debit: "", credit: "$87,000" }
+    ]
+  };
+  var data2 = {
+    material: { id: "ROT-DR9-PR", desc: "Precision Disc Brake Rotor — Model DR9", plant: "MER-100", standard_price: "$6.20", valuation_date: "2025-11-15" }
+  };
+  var data3 = {
+    material: { id: "TRHD-3SP", desc: "Meridian Trailhead 3-Speed — Complete Bike", plant: "MER-100", standard_price: "$142.00", valuation_date: "2026-01-04" }
+  };
+
+  var CASES = {
+
+    case1: {
+      briefing: {
+        kicker: "Month-end review",
+        title: "An unexplained $13,400 variance just landed on your desk.",
+        flagText: "Material Purchase Price Variance · Flagged, no explanation attached",
+        p1: "This month's cost variance report shows a $13,400 unfavorable material price variance on the Aluminum Frame Tube (VX7) — Meridian's highest-volume frame component. Nobody has explained it yet.",
+        p2: "You have four data sources and Sam Delgado, the Cost Accounting Manager, to work with. Find the real cause, write up your conclusion, and Mentor will debrief you on accuracy, communication, and risk management.",
+        steps: [
+          "Open the data room — variance report, material master, goods receipts, journal entries",
+          "Ask Sam what they think — then check it yourself",
+          "Submit a short write-up: cause, amount, recommendation"
+        ]
+      },
+      openingLine: "Hey — saw you're looking at the frame tube variance. Let me know what you find, happy to help.",
+      tabs: [
+        { key: 'variance', label: 'Variance report', render: function () {
+            return '<table><thead><tr><th>Cost object</th><th>Variance type</th><th>Amount</th><th>Status</th></tr></thead><tbody>' +
+              '<tr class="flagged"><td class="mono">FRM-VX7-AL / Plant 100</td><td>Material Purchase Price</td><td class="mono">$13,400 U</td><td>Unexplained</td></tr>' +
+              '<tr><td class="mono">WLD-LINE-2</td><td>Scrap / Yield</td><td class="mono">$2,150 U</td><td>Explained — known issue</td></tr>' +
+              '</tbody></table><p class="note">U = unfavorable. Only one row on this report is actually unexplained.</p>';
+        }},
+        { key: 'material', label: 'Material master', render: function () {
+            return '<dl>' +
+              '<dt>Material ID</dt><dd class="mono">' + data1.material.id + '</dd>' +
+              '<dt>Description</dt><dd>' + data1.material.desc + '</dd>' +
+              '<dt>Plant</dt><dd class="mono">' + data1.material.plant + '</dd>' +
+              '<dt>Standard price</dt><dd class="mono">' + data1.material.standard_price + ' / unit</dd>' +
+              '<dt>Valuation date</dt><dd class="mono">' + data1.material.valuation_date + '</dd>' +
+              '</dl><p class="note">Valuation date is when the standard was last set — not necessarily reviewed since.</p>';
+        }},
+        { key: 'receipts', label: 'Goods receipts', render: function () {
+            return '<dl>' +
+              '<dt>Receipt ID</dt><dd class="mono">' + data1.receipt.id + '</dd>' +
+              '<dt>Material</dt><dd class="mono">' + data1.receipt.material + '</dd>' +
+              '<dt>Quantity</dt><dd class="mono">' + data1.receipt.qty + ' units</dd>' +
+              '<dt>Actual unit price</dt><dd class="mono">' + data1.receipt.actual_unit_price + '</dd>' +
+              '<dt>Posting date</dt><dd class="mono">' + data1.receipt.posting_date + '</dd>' +
+              '<dt>Vendor</dt><dd>' + data1.receipt.vendor + '</dd>' +
+              '</dl><p class="note">Actual price paid this receipt vs. the material master\'s standard price above — worth comparing.</p>';
+        }},
+        { key: 'journal', label: 'Journal entries', render: function () {
+            var rows = data1.journal.map(function (j) {
+              return '<tr><td class="mono">' + j.entry + '</td><td>' + j.account + '</td><td class="mono">' + j.debit + '</td><td class="mono">' + j.credit + '</td></tr>';
+            }).join('');
+            return '<table><thead><tr><th>Entry</th><th>Account</th><th>Debit</th><th>Credit</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+              '<p class="note">$73,600 + $13,400 = $87,000 — it balances. That\'s exactly why the variance is findable: everything reconciles once you trace it to the actual invoice.</p>';
+        }}
+      ],
+      suggested: [
+        { key: 'scrap', prompt: "What's causing this variance?" },
+        { key: 'standard', prompt: "Has the standard cost been reviewed recently?" },
+        { key: 'vendor', prompt: "Can we check the vendor's actual invoice price?" },
+        { key: 'challenge', prompt: "Are you sure it's the scrap line again?" }
+      ],
+      responses: {
+        scrap: "Honestly, my first read is the scrap issue again — the frame-welding line has been running hot on scrap for about two months now. I'd bet this is more of the same before I'd look anywhere else.",
+        standard: "…Actually, let me think about that. I don't remember us reviewing the frame tube standard this fiscal year. That's worth checking before I say anything else.",
+        vendor: "I haven't pulled the actual invoice, but Purchasing did mention aluminum prices moved earlier this year. I hadn't connected that to this variance until you asked.",
+        challenge: "Fair pushback — I haven't actually confirmed the scrap rate moved this period, I was going on instinct from the last two months. Worth checking before we assume.",
+        fallback: "What can I help you dig into? I've got a read on this, but I'm open to being wrong."
+      },
+      routeKey: function (t) {
+        if (/scrap|weld|yield/.test(t)) return 'scrap';
+        if (/standard|valuat|review|updat|last.*review|when.*review/.test(t)) return 'standard';
+        if (/vendor|invoice|price|aluminum|market|increase/.test(t)) return 'vendor';
+        if (/confirm|sure|evidence|actual.*rate|prove|data.*support/.test(t)) return 'challenge';
+        return 'fallback';
+      },
+      writeupPrompt: "What actually caused the $13,400 variance, and what do you recommend?",
+      grade: function (text) {
+        var t = text.toLowerCase();
+        var hasRootCause = /(standard (cost|price)|stale|outdated|not updated|hadn't been updated|never updated|valuation date)/.test(t);
+        var hasFigure = /(13,?400|13\.4k)/.test(t);
+        var technical = (hasRootCause && hasFigure) ? 'strong' : 'developing';
+        var wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+        var hasRecommendation = /(recommend|should|propose|suggest|next step)/.test(t);
+        var communication = (wordCount >= 20 && hasRecommendation) ? 'strong' : 'developing';
+        var hasRisk = /(review|trigger|threshold|control|process|catch|monitor|flag|audit)/.test(t);
+        var risk = hasRisk ? 'strong' : 'developing';
+        return { technical: technical, communication: communication, risk: risk };
+      },
+      feedback: {
+        technical: {
+          strong: "You named the real cause — the standard cost was never updated after the vendor's price increase — and the $13,400 figure is right. That's the finding a real close review needs.",
+          developing: "The actual cause is a stale standard: it was never updated after the vendor raised prices, which produced a $13,400 unfavorable variance. Worth checking the material master's valuation date against the goods receipt before concluding."
+        },
+        communication: {
+          strong: "Clear and actionable — a plant manager could read this and know what to do next.",
+          developing: "Say more, and say what you recommend. A short write-up is fine, but it should end with a clear next step and who owns it."
+        },
+        risk: {
+          strong: "Good — flagging the control gap is exactly what turns a one-off fix into a process improvement.",
+          developing: "Consider what let this slip past — a vendor price move this size (18%) went unnoticed until now. What review or threshold would catch it next time?"
+        }
+      },
+      answerKey: {
+        p1: "The standard price for the Aluminum Frame Tube (VX7) was set at <strong>$18.40/unit</strong> at the start of the fiscal year and never revisited. The vendor, Alcan Extrusions Ltd., raised prices to <strong>$21.75/unit</strong> after an aluminum cost spike. August's receipt of 4,000 units posted a <strong>$13,400</strong> unfavorable purchase price variance — real, and fully explained by the stale standard, not by scrap.",
+        p2: "Recommended fix: trigger a standard-cost review whenever a vendor's actual price deviates more than ~10% from standard for two consecutive receipts."
+      },
+      underHood: {
+        ledger: "One ledger, four tables modeled on real SAP objects (MBEW for the material master, MSEG/MKPF for the goods receipt, ACDOCA for the journal entries) — the same data both the colleague and the Mentor read from, so there's no second, secretly-correct copy anywhere.",
+        exception: "The injected exception is a single unrefreshed field: the material master's standard price was set once, on 2026-01-04, and never updated, while the goods receipt carries the vendor's real, higher price. Every row is individually valid — the discrepancy only exists in the gap between two tables.",
+        grading: "The colleague's default answer (scrap/yield) is a plausible-sounding wrong theory recycled from a real, unrelated problem two months prior. Grading checks whether the write-up names the actual mechanism — stale standard vs. vendor price — and the $13,400 figure, not whether it agrees with Sam."
+      }
+    },
+
+    case2: {
+      briefing: {
+        kicker: "Cycle count exception",
+        title: "A cycle count just came up 340 units short — and Sam already suspects theft.",
+        flagText: "Inventory Quantity Variance · Disc Brake Rotor (DR9) · Unresolved",
+        p1: "This month's cycle count for the Precision Disc Brake Rotor (DR9) at Plant 100 found 1,510 units on the shelf against a book quantity of 1,850 — a 340-unit gap worth roughly $2,108 at standard cost. Sam Delgado, the Cost Accounting Manager, wants to write it off as shrinkage and loop in loss prevention.",
+        p2: "Before that write-off goes through, you have the material master and the goods movement history for DR9 in the data room. Find out whether this is really a loss — or a posting problem — then write up your conclusion.",
+        steps: [
+          "Open the data room — cycle count, material master, goods movements, proposed journal entry",
+          "Ask Sam what they think — then check the movement history yourself",
+          "Submit a short write-up: cause, amount, recommendation"
+        ]
+      },
+      openingLine: "Hey — cycle count on the DR9 rotors came up short again. I already drafted the shrinkage write-off, just need your sign-off.",
+      tabs: [
+        { key: 'variance', label: 'Cycle count', render: function () {
+            return '<table><thead><tr><th>Material</th><th>Book qty</th><th>Physical qty</th><th>Variance</th><th>Status</th></tr></thead><tbody>' +
+              '<tr class="flagged"><td class="mono">ROT-DR9-PR</td><td class="mono">1,850</td><td class="mono">1,510</td><td class="mono">-340</td><td>Unexplained</td></tr>' +
+              '</tbody></table><p class="note">Roughly $2,108 at standard cost. No other material at this plant shows a gap this period.</p>';
+        }},
+        { key: 'material', label: 'Material master', render: function () {
+            return '<dl>' +
+              '<dt>Material ID</dt><dd class="mono">' + data2.material.id + '</dd>' +
+              '<dt>Description</dt><dd>' + data2.material.desc + '</dd>' +
+              '<dt>Plant</dt><dd class="mono">' + data2.material.plant + '</dd>' +
+              '<dt>Standard price</dt><dd class="mono">' + data2.material.standard_price + ' / unit</dd>' +
+              '<dt>Valuation date</dt><dd class="mono">' + data2.material.valuation_date + '</dd>' +
+              '</dl><p class="note">This is the record the cycle count above is measured against.</p>';
+        }},
+        { key: 'receipts', label: 'Goods movements', render: function () {
+            return '<table><thead><tr><th>Material</th><th>Movement</th><th>Qty</th><th>Date</th><th>Reference</th></tr></thead><tbody>' +
+              '<tr><td class="mono">ROT-DR9-PR</td><td>Receipt</td><td class="mono">+500</td><td class="mono">2026-08-03</td><td class="mono">PO-55210</td></tr>' +
+              '<tr><td class="mono">ROT-DR9-PR</td><td>Issue</td><td class="mono">-310</td><td class="mono">2026-08-22</td><td class="mono">WO-4471</td></tr>' +
+              '<tr class="flagged"><td class="mono">ROT-DR8-PR</td><td>Issue</td><td class="mono">-340</td><td class="mono">2026-08-22</td><td class="mono">WO-4471</td></tr>' +
+              '</tbody></table><p class="note">ROT-DR8-PR (the prior rotor model) was phased out in March 2026. Work Order 4471\'s routing calls for DR9 — not DR8.</p>';
+        }},
+        { key: 'journal', label: 'Proposed entry', render: function () {
+            return '<table><thead><tr><th>Entry</th><th>Account</th><th>Debit</th><th>Credit</th></tr></thead><tbody>' +
+              '<tr><td class="mono">JE-DRAFT-1</td><td>560000 · Inventory Shrinkage Expense</td><td class="mono">$2,108</td><td></td></tr>' +
+              '<tr><td class="mono">JE-DRAFT-2</td><td>130000 · Raw Material Inventory (DR9)</td><td></td><td class="mono">$2,108</td></tr>' +
+              '</tbody></table><p class="note">Drafted by Sam, awaiting sign-off — not yet posted. Reversing a write-off is a lot more paperwork than holding one.</p>';
+        }}
+      ],
+      suggested: [
+        { key: 'theory', prompt: "What's your read on the gap?" },
+        { key: 'movements', prompt: "Have you checked the goods movement history?" },
+        { key: 'similar', prompt: "Could this be posted against the wrong material code?" },
+        { key: 'challenge', prompt: "Do we have any actual evidence of theft?" }
+      ],
+      responses: {
+        theory: "340 units missing with no obvious explanation — I've seen this pattern before and it's usually shrinkage. I'd rather write it off now and keep the count clean.",
+        movements: "I looked at DR9's own receipts and issues, they look normal. I didn't dig into any other material codes though — why would I?",
+        similar: "Huh — I wouldn't have thought to check DR8. That part's basically discontinued, we barely touch it anymore.",
+        challenge: "Fair — no, I don't have actual evidence of theft. It's a judgment call based on the size of the gap, not something I've confirmed.",
+        fallback: "What are you seeing? I've got a draft write-off ready, but I'm not wedded to it."
+      },
+      routeKey: function (t) {
+        if (/dr8|wrong (material|code|part)|similar|mis.?key|mis.?post|keyed/.test(t)) return 'similar';
+        if (/evidence|theft|steal|sure|prove|confirm|actual/.test(t)) return 'challenge';
+        if (/movement|history|trace|track|receipt|issue/.test(t)) return 'movements';
+        if (/read|think|cause|explain|gap|variance/.test(t)) return 'theory';
+        return 'fallback';
+      },
+      writeupPrompt: "What actually explains the 340-unit gap, and what do you recommend before Sam posts the write-off?",
+      grade: function (text) {
+        var t = text.toLowerCase();
+        var hasRootCause = /(wrong material|mis.?key|miskey|misposted|mis.?post|posted against|dr8|keying error|data entry|wrong code|wrong part)/.test(t);
+        var hasFigure = /(340)/.test(t);
+        var technical = (hasRootCause && hasFigure) ? 'strong' : 'developing';
+        var wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+        var hasRecommendation = /(recommend|should|propose|suggest|next step|hold|before (posting|we post))/.test(t);
+        var communication = (wordCount >= 20 && hasRecommendation) ? 'strong' : 'developing';
+        var hasRisk = /(control|block|warn|flag|phase.?out|validation|process|review|prevent)/.test(t);
+        var risk = hasRisk ? 'strong' : 'developing';
+        return { technical: technical, communication: communication, risk: risk };
+      },
+      feedback: {
+        technical: {
+          strong: "You caught it — 340 units of DR9 were actually issued against Work Order 4471, but keyed to DR8, a phased-out material code, by mistake. That's a posting error, not shrinkage.",
+          developing: "The real cause: DR9's 340 units were issued against Work Order 4471 but mis-keyed to DR8 (a phased-out material code) instead. Trace the movement history for both material codes before accepting the shrinkage theory."
+        },
+        communication: {
+          strong: "Clear and appropriately cautious — you didn't escalate a theft narrative without evidence, and you gave Sam a specific next step.",
+          developing: "Say what you recommend, specifically — hold the write-off? Correct the movement? A plant manager reading this needs a next step, not just a diagnosis."
+        },
+        risk: {
+          strong: "Good — flagging that the system allowed an issue against a phased-out material code without a warning is the real fix, not just correcting this one entry.",
+          developing: "Consider why this was postable at all — should the system warn or block goods issues against materials with no open routing? What would catch this before it reaches a cycle count?"
+        }
+      },
+      answerKey: {
+        p1: "The 340 units were never missing. On August 22, Work Order 4471 called for Precision Disc Brake Rotors (DR9), but the warehouse issue was keyed against <strong>DR8</strong> — a nearly identical, phased-out predecessor part — instead. DR9's book quantity was never decremented for units that had, in fact, left the shelf, which is exactly why the physical count came up <strong>340 units</strong> short.",
+        p2: "Recommended fix: hold the shrinkage write-off, correct the goods issue to the right material code, and add a system check that flags — or blocks — issues posted against materials with no open routing for the referenced work order."
+      },
+      underHood: {
+        ledger: "Same ledger as Case 1, extended with a goods_movements table that records both inbound receipts and outbound issues — SAP's MSEG/MKPF already cover both, so this is an unused half of the same schema, not a new one. Two material rows, DR9 and its phased-out predecessor DR8, share one real-world event: a 340-unit issue against Work Order 4471.",
+        exception: "The injected exception is a mis-keyed material code, not a missing figure. Both movement lines are real and present in the data — the 'bug' is that one issue points at the wrong material_id. Nothing is hidden or deleted; the discrepancy is fully findable by noticing that two rows, each individually unremarkable, share a work order that only one of them should.",
+        grading: "The colleague's default answer — shrinkage — is a plausible, expensive-if-wrong theory: accepting it uncritically triggers a write-off and a loss-prevention referral. Grading checks whether the write-up names the mis-keyed material code and the 340-unit figure, rather than rewarding agreement with Sam's first theory."
+      }
+    },
+
+    case3: {
+      briefing: {
+        kicker: "Favorable variance review",
+        title: "The Trailhead line beat standard cost by $8,160 this month. Sam's ready to call it a win.",
+        flagText: "Materials Efficiency Variance · Meridian Trailhead 3-Speed · Favorable, unreviewed",
+        p1: "The Meridian Trailhead 3-Speed came in at $135.20 in actual material cost per unit against a $142.00 standard — a $6.80/unit favorable variance, $8,160 across August's 1,200 units. Sam Delgado sees a good month. Nobody has asked why.",
+        p2: "You have the variance report, the material master, the bill-of-materials history, and the journal entries in the data room. Figure out whether this is real efficiency or something else, then write up your conclusion.",
+        steps: [
+          "Open the data room — variance report, material master, BOM history, journal entries",
+          "Ask Sam what they think — then check the engineering change history yourself",
+          "Submit a short write-up: cause, amount, recommendation"
+        ]
+      },
+      openingLine: "Good news for once — Trailhead line came in $8,160 favorable this month. I'll take a win.",
+      tabs: [
+        { key: 'variance', label: 'Variance report', render: function () {
+            return '<table><thead><tr><th>Cost object</th><th>Variance type</th><th>Amount</th><th>Status</th></tr></thead><tbody>' +
+              '<tr class="flagged"><td class="mono">TRHD-3SP / Plant 100</td><td>Materials Efficiency</td><td class="mono">$8,160 F</td><td>Favorable — unreviewed</td></tr>' +
+              '<tr><td class="mono">WLD-LINE-2</td><td>Scrap / Yield</td><td class="mono">$1,900 U</td><td>Explained — known issue</td></tr>' +
+              '</tbody></table><p class="note">F = favorable, U = unfavorable. Favorable rows get reviewed far less often — that\'s usually where a stale standard hides.</p>';
+        }},
+        { key: 'material', label: 'Material master', render: function () {
+            return '<dl>' +
+              '<dt>Material ID</dt><dd class="mono">' + data3.material.id + '</dd>' +
+              '<dt>Description</dt><dd>' + data3.material.desc + '</dd>' +
+              '<dt>Plant</dt><dd class="mono">' + data3.material.plant + '</dd>' +
+              '<dt>Standard price (materials)</dt><dd class="mono">' + data3.material.standard_price + ' / unit</dd>' +
+              '<dt>Valuation date</dt><dd class="mono">' + data3.material.valuation_date + '</dd>' +
+              '</dl><p class="note">Valuation date is when the standard was last set — same as every material here, it doesn\'t mean reviewed since.</p>';
+        }},
+        { key: 'receipts', label: 'BOM history', render: function () {
+            return '<table><thead><tr><th>Change</th><th>Component</th><th>Effective</th><th>Cost impact</th><th>Standard updated?</th></tr></thead><tbody>' +
+              '<tr class="flagged"><td class="mono">ECN-2261</td><td>Kickstand Bracket: Steel (KSB-STL-02) → Composite (KSB-CMP-01)</td><td class="mono">2026-06-15</td><td class="mono">-$6.80/unit</td><td>No</td></tr>' +
+              '</tbody></table><p class="note">Engineering changes update the physical bill of materials immediately. The standard cost roll-up is a separate, manual step — this one was never triggered.</p>';
+        }},
+        { key: 'journal', label: 'Journal entries', render: function () {
+            return '<table><thead><tr><th>Entry</th><th>Account</th><th>Debit</th><th>Credit</th></tr></thead><tbody>' +
+              '<tr><td class="mono">JE-88450-1</td><td>130000 · Raw Material Inventory (Trailhead)</td><td class="mono">$170,400</td><td></td></tr>' +
+              '<tr><td class="mono">JE-88450-2</td><td>519600 · Materials Efficiency Variance</td><td></td><td class="mono">$8,160</td></tr>' +
+              '<tr><td class="mono">JE-88450-3</td><td>200000 · Accrued Production Cost</td><td></td><td class="mono">$162,240</td></tr>' +
+              '</tbody></table><p class="note">$162,240 (actual) + $8,160 (favorable variance) = $170,400 (standard). It balances — same as every case here, the variance is only visible once you compare the standard to what actually changed.</p>';
+        }}
+      ],
+      suggested: [
+        { key: 'good_news', prompt: "Why did we come in favorable this month?" },
+        { key: 'engineering', prompt: "Was there a recent BOM or engineering change?" },
+        { key: 'standard_updated', prompt: "Was the standard cost updated recently?" },
+        { key: 'investigate', prompt: "Should we be investigating favorable variances too?" }
+      ],
+      responses: {
+        good_news: "Materials efficiency, mostly — the line's been running well. Favorable variances aren't usually the ones that need explaining, so I hadn't dug further.",
+        engineering: "Now that you mention it... I do remember something about a kickstand bracket redesign a few months back. Hadn't connected that to this month's numbers.",
+        standard_updated: "Routine standard updates usually happen at year-start. If there was a mid-year engineering change, it's possible the standard never got re-rolled to match.",
+        investigate: "Fair point. I'll admit I usually only dig into the unfavorable ones — favorable feels like it doesn't need defending.",
+        fallback: "What are you finding? I called this one a win, but I'm listening."
+      },
+      routeKey: function (t) {
+        if (/bom|engineering|ecn|bracket|redesign|component|change/.test(t)) return 'engineering';
+        if (/standard.*(updat|revis|roll)|updat.*standard|when.*standard|reviewed/.test(t)) return 'standard_updated';
+        if (/investigat|favorable.*(too|also)|should we|worth (checking|digging)/.test(t)) return 'investigate';
+        if (/why|favorable|efficien|good news|win|explain/.test(t)) return 'good_news';
+        return 'fallback';
+      },
+      writeupPrompt: "What actually explains the $8,160 favorable variance, and what do you recommend?",
+      grade: function (text) {
+        var t = text.toLowerCase();
+        var hasRootCause = /(bom|bracket|composite|engineering change|ecn|standard.*(not|never|wasn't|hadn't).*(updat|revis|roll)|stale standard|standard.*stale)/.test(t);
+        var hasFigure = /(8,?160|6\.80|6\.8)/.test(t);
+        var technical = (hasRootCause && hasFigure) ? 'strong' : 'developing';
+        var wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+        var hasRecommendation = /(recommend|should|propose|suggest|next step|update the standard|re-?roll)/.test(t);
+        var communication = (wordCount >= 20 && hasRecommendation) ? 'strong' : 'developing';
+        var hasRisk = /(favorable|trigger|link|ecn|engineering change|control|review|both directions|not just unfavorable)/.test(t);
+        var risk = hasRisk ? 'strong' : 'developing';
+        return { technical: technical, communication: communication, risk: risk };
+      },
+      feedback: {
+        technical: {
+          strong: "Right — a kickstand bracket swap (steel to composite, ECN-2261) cut material cost by $6.80/unit, but the standard was never re-rolled to match. That's the entire $8,160, not real operational improvement.",
+          developing: "The cause is a stale standard: an engineering change (steel-to-composite bracket) cut actual cost by $6.80/unit in June, but the $142.00 standard was never updated. That gap, not real efficiency, is the full $8,160."
+        },
+        communication: {
+          strong: "Good — you explained why a 'good news' number still needed a recommendation, not just an explanation.",
+          developing: "Say what you recommend — should the standard be re-rolled to $135.20? A write-up that only explains the variance without proposing a fix leaves the real work undone."
+        },
+        risk: {
+          strong: "Exactly the right instinct — the fix isn't this one variance, it's making sure engineering changes automatically trigger a standard-cost review, favorable or not.",
+          developing: "Consider the process gap: what should have happened automatically when ECN-2261 was approved? Favorable variances get investigated less often than unfavorable ones — that's the real risk here."
+        }
+      },
+      answerKey: {
+        p1: "In June 2026, Engineering Change ECN-2261 replaced the Trailhead's steel kickstand bracket with a composite version, cutting real material cost by <strong>$6.80/unit</strong>. The physical bill of materials was updated immediately — but the standard cost roll-up, normally run at year-start, was never re-triggered, so the <strong>$142.00</strong> standard still assumed the old steel bracket. August's $135.20 actual cost against that stale standard produced the full <strong>$8,160</strong> favorable variance — genuine savings, attributed to the wrong cause.",
+        p2: "Recommended fix: re-roll the Trailhead's standard cost to reflect the composite bracket, and require any approved engineering change to trigger an automatic standard-cost review — favorable variances included, not just unfavorable ones."
+      },
+      underHood: {
+        ledger: "Same ledger pattern as Cases 1 and 2, this time keyed off a BOM/engineering-change log (SAP STKO/STPO plus a change-history table) alongside the usual material master and journal entries. The variance report and journal entries reconcile perfectly on their own — $162,240 actual + $8,160 favorable = $170,400 standard — which is exactly why this one is easy to wave through.",
+        exception: "The injected exception is a standard that fell out of sync with an approved engineering change, not an error in any single transaction. Every row in the ledger is individually correct; the gap only appears when you compare the BOM's effective-dated component history against the material master's un-updated standard price.",
+        grading: "The colleague's blind spot here is directional: favorable variances read as good news, so the default response doesn't question them. Grading rewards a write-up that treats 'favorable' with the same scrutiny as 'unfavorable' and proposes a process fix — engineering change triggers standard review — not just a one-time correction."
+      }
+    }
+
+  };
+
+  function startCase(id) {
+    activeCase = id;
+    resetWorkspaceState();
+    renderBriefing(CASES[id]);
+    document.getElementById('screen-picker').hidden = true;
+    document.getElementById('screen-debrief').hidden = true;
+    document.getElementById('screen-briefing').hidden = false;
+    document.getElementById('topbarActions').hidden = false;
+    window.scrollTo(0, 0);
+  }
+
+  function backToPicker() {
+    resetWorkspaceState();
+    document.getElementById('screen-briefing').hidden = true;
+    document.getElementById('screen-workspace').hidden = true;
+    document.getElementById('screen-debrief').hidden = true;
+    document.getElementById('underhoodPanel').hidden = true;
+    document.getElementById('topbarActions').hidden = true;
+    document.getElementById('screen-picker').hidden = false;
+    activeCase = null;
+    window.scrollTo(0, 0);
+  }
+
+  function renderBriefing(c) {
+    var b = c.briefing;
+    document.getElementById('briefKicker').textContent = b.kicker;
+    document.getElementById('briefTitle').textContent = b.title;
+    document.getElementById('briefFlag').textContent = b.flagText;
+    document.getElementById('briefP1').textContent = b.p1;
+    document.getElementById('briefP2').textContent = b.p2;
+    document.getElementById('briefSteps').innerHTML = b.steps.map(function (s) { return '<li>' + s + '</li>'; }).join('');
+  }
+
+  function beginInvestigation() {
+    var c = CASES[activeCase];
+    document.getElementById('screen-briefing').hidden = true;
+    document.getElementById('screen-workspace').hidden = false;
+    renderWorkspaceChrome(c);
+    addBubble('colleague', c.openingLine);
+  }
+
+  function renderWorkspaceChrome(c) {
+    document.getElementById('toolTabs').innerHTML = c.tabs.map(function (t) {
+      return '<button class="tool-tab" data-tool="' + t.key + '" onclick="openTool(\'' + t.key + '\')"><span class="dot"></span>' + t.label + '</button>';
+    }).join('');
+    document.getElementById('suggestedRow').innerHTML = c.suggested.map(function (s) {
+      return '<button class="btn btn-ghost" onclick="askSuggested(\'' + s.key + '\')">' + s.prompt + '</button>';
+    }).join('');
+    document.getElementById('writeupText').placeholder = c.writeupPrompt;
+  }
+
+  function openTool(key) {
+    var c = CASES[activeCase];
+    document.querySelectorAll('.tool-tab').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.tool === key);
+      if (btn.dataset.tool === key) btn.classList.add('seen');
+    });
+    seenTools[key] = true;
+    var tab = c.tabs.find(function (t) { return t.key === key; });
+    document.getElementById('toolViewer').innerHTML = tab ? tab.render() : '';
+  }
+
+  function addBubble(who, text) {
+    var log = document.getElementById('chatLog');
+    var row = document.createElement('div');
+    row.className = 'bubble-row ' + who;
+    var sender = document.createElement('div');
+    sender.className = 'bubble-sender';
+    sender.textContent = who === 'student' ? 'You' : 'Sam Delgado';
+    var bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+    row.appendChild(sender);
+    row.appendChild(bubble);
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function routeMessage(text) {
+    var c = CASES[activeCase];
+    var key = c.routeKey(text.toLowerCase());
+    return c.responses[key] || c.responses.fallback;
+  }
+
+  function askSuggested(key) {
+    var c = CASES[activeCase];
+    var item = c.suggested.find(function (s) { return s.key === key; });
+    addBubble('student', item.prompt);
+    setTimeout(function () { addBubble('colleague', c.responses[key]); }, 260);
+  }
+
+  function sendChat() {
+    var input = document.getElementById('chatInput');
+    var text = input.value.trim();
+    if (!text) return;
+    addBubble('student', text);
+    input.value = '';
+    var reply = routeMessage(text);
+    setTimeout(function () { addBubble('colleague', reply); }, 260);
+  }
+
+  function grade(text) {
+    return CASES[activeCase].grade(text);
+  }
+
+  function submitWriteup() {
+    var text = document.getElementById('writeupText').value.trim();
+    if (!text) { document.getElementById('writeupText').focus(); return; }
+    var c = CASES[activeCase];
+    var result = grade(text);
+    ['technical', 'communication', 'risk'].forEach(function (dim) {
+      var chip = document.getElementById('chip-' + dim);
+      chip.textContent = result[dim] === 'strong' ? 'Strong' : 'Developing';
+      chip.className = 'chip ' + result[dim];
+      document.getElementById('fb-' + dim).textContent = c.feedback[dim][result[dim]];
+    });
+    document.getElementById('answerKeyP1').innerHTML = c.answerKey.p1;
+    document.getElementById('answerKeyP2').innerHTML = c.answerKey.p2;
+    document.getElementById('screen-workspace').hidden = true;
+    document.getElementById('screen-debrief').hidden = false;
+    window.scrollTo(0, 0);
+  }
+
+  function toggleUnderHood() {
+    var panel = document.getElementById('underhoodPanel');
+    if (panel.hidden) {
+      var c = CASES[activeCase];
+      document.getElementById('uhLedger').textContent = c.underHood.ledger;
+      document.getElementById('uhException').textContent = c.underHood.exception;
+      document.getElementById('uhGrading').textContent = c.underHood.grading;
+      panel.hidden = false;
+    } else {
+      panel.hidden = true;
+    }
+  }
+
+  function resetWorkspaceState() {
+    document.getElementById('chatLog').innerHTML = '';
+    document.getElementById('writeupText').value = '';
+    document.getElementById('toolViewer').innerHTML = '<div class="placeholder">Select a source above to view it.</div>';
+    document.querySelectorAll('.tool-tab').forEach(function (btn) { btn.classList.remove('active', 'seen'); });
+    seenTools = {};
+  }
+
+  function restart() {
+    resetWorkspaceState();
+    document.getElementById('screen-workspace').hidden = true;
+    document.getElementById('screen-debrief').hidden = true;
+    document.getElementById('underhoodPanel').hidden = true;
+    renderBriefing(CASES[activeCase]);
+    document.getElementById('screen-briefing').hidden = false;
+    window.scrollTo(0, 0);
+  }
+</script>
+
+</body></html>
